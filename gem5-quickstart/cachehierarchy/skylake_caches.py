@@ -38,26 +38,35 @@ line options from each individual class.
 """
 
 import m5
-from m5.objects import Cache, L2XBar, StridePrefetcher, WriteAllocator, SubSystem, TreePLRURP, PIFPrefetcher
+from m5.objects import (
+    Cache,
+    L2XBar,
+    StridePrefetcher,
+    WriteAllocator,
+    SubSystem,
+    TreePLRURP,
+    PIFPrefetcher,
+)
 from m5.params import AddrRange, AllMemory, MemorySize
 from m5.util.convert import toMemorySize
 
 # Some specific options for caches
 # For all options see src/mem/cache/BaseCache.py
 
-class PrefetchCache(Cache):
 
+class PrefetchCache(Cache):
     def __init__(self):
         super(PrefetchCache, self).__init__()
         self.prefetcher = PIFPrefetcher()
         self.replacement_policy = TreePLRURP()
         self.prefetch_on_access = True
 
+
 class L1Cache(PrefetchCache):
     """Simple L1 Cache with default values"""
 
     assoc = 8
-    size = '32kB'
+    size = "32kB"
 
     tag_latency = 1
     data_latency = 1
@@ -78,8 +87,9 @@ class L1Cache(PrefetchCache):
 
     def connectCPU(self, cpu):
         """Connect this cache's port to a CPU-side port
-           This must be defined in a subclass"""
+        This must be defined in a subclass"""
         raise NotImplementedError
+
 
 class L1ICache(L1Cache):
     """Simple L1 instruction cache with default values"""
@@ -91,11 +101,12 @@ class L1ICache(L1Cache):
         """Connect this cache's port to a CPU icache port"""
         self.cpu_side = cpu.icache_port
 
+
 class L1DCache(L1Cache):
     """Simple L1 data cache with default values"""
 
     # Set the default size
-    size = '32kB'
+    size = "32kB"
     assoc = 8
 
     prefetcher = StridePrefetcher()
@@ -110,16 +121,17 @@ class L1DCache(L1Cache):
     def __init__(self, l1dwritelatency, l1dmshr, l1dwb):
         self.mshrs = l1dmshr
         self.write_buffers = l1dwb
-        self.write_latency = l1dwritelatency
+        # self.write_latency = l1dwritelatency
         super(L1DCache, self).__init__()
 
     def connectCPU(self, cpu):
         """Connect this cache's port to a CPU dcache port"""
         self.cpu_side = cpu.dcache_port
 
+
 class MMUCache(PrefetchCache):
     # Default parameters
-    size = '8kB'
+    size = "8kB"
     assoc = 8
     tag_latency = 1
     data_latency = 1
@@ -132,7 +144,7 @@ class MMUCache(PrefetchCache):
 
     def connectCPU(self, cpu):
         """Connect the CPU itb and dtb to the cache
-           Note: This creates a new crossbar
+        Note: This creates a new crossbar
         """
         self.mmubus = L2XBar()
         self.cpu_side = self.mmubus.mem_side_ports
@@ -143,16 +155,17 @@ class MMUCache(PrefetchCache):
         """Connect this cache to a memory-side bus"""
         self.mem_side = bus.cpu_side_ports
 
+
 class L2Cache(PrefetchCache):
     """Simple L2 Cache with default values"""
-    
+
     def __init__(self, l2writelatency, l2mshr, l2wb):
-        self.write_latency = l2writelatency
+        # self.write_latency = l2writelatency
         self.mshrs = l2mshr
         self.write_buffers = l2wb
         super(L2Cache, self).__init__()
 
-    size = '512kB'
+    size = "512kB"
     assoc = 16
     tag_latency = 14
     data_latency = 14
@@ -168,24 +181,25 @@ class L2Cache(PrefetchCache):
     def connectMemSideBus(self, bus):
         self.mem_side = bus.cpu_side_ports
 
+
 class L3Cache(PrefetchCache):
     """Simple L3 Cache bank with default values
-       This assumes that the L3 is made up of multiple banks. This cannot
-       be used as a standalone L3 cache.
+    This assumes that the L3 is made up of multiple banks. This cannot
+    be used as a standalone L3 cache.
     """
 
     # Default parameters
-    size = '512kB'
+    size = "512kB"
     assoc = 8
     tag_latency = 44
     data_latency = 44
     response_latency = 1
     tgts_per_mshr = 16
 
-    clusivity = 'mostly_excl'
+    clusivity = "mostly_excl"
 
     def __init__(self, l3writelatency, l3mshr, l3wb):
-        self.write_latency = l3writelatency
+        # self.write_latency = l3writelatency
         self.mshrs = l3mshr
         self.write_buffers = l3wb
         super(L3Cache, self).__init__()

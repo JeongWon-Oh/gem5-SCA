@@ -42,3 +42,8 @@ mm_workload = CustomWorkload(
         # Note: 64 takes ~10s, 128 takes ~30s, and 256 takes ~4 min
     },
 )
+
+sca_workload = CustomWorkload(
+    function="set_se_binary_workload",
+    parameters={"binary": CustomResource("/home/jeongwon/CacheSC_gem5/demo/hello")},
+)

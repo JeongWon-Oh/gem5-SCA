@@ -35,7 +35,7 @@ script will reset the stats at the beginning of the ROI and it will dump the
 stats and exit at the end of the ROI unless `--ignore_roi` is set on the
 command line.
 
-After running the binary, the script prints the instructions, simulated time, 
+After running the binary, the script prints the instructions, simulated time,
 and cycles. More detailed statistics can be found in the output directory
 (`m5out/`) by default.
 """
@@ -50,6 +50,7 @@ from gem5.simulate.exit_event_generators import (
 
 from board import SimpleX86Board, OutOfOrderProcX86Board, SkylakeX86Board
 from workload import mm_workload
+from workload import sca_workload
 
 from argparse import ArgumentParser
 
@@ -102,7 +103,7 @@ def setup_arguments():
         help="Number of L1 data cache mshrs",
         default=2,
     )
-    
+
     parser.add_argument(
         "--l1dwb",
         type=int,
@@ -140,6 +141,7 @@ def setup_arguments():
 
     return parser.parse_args()
 
+
 def print_stats_simple(stats):
     instructions = int(
         stats["board"]["processor"]["cores"]["core"]["exec_context.thread_0"][
@@ -174,7 +176,7 @@ def print_stats_ooo(stats):
 
     # l1imiss = int(stats["board"]["cache_hierarchy"]["l1icache"]["overallMisses"]["value"])
     # print(f"L1ICache MPKI: {l1imiss * 1000 / instructions}")
-    
+
     # l2miss = int(stats["board"]["cache_hierarchy"]["l2cache"]["overallMisses"]["value"])
     # print(f"L2Cache MPKI: {l2miss * 1000 / instructions}")
 
@@ -217,7 +219,8 @@ if __name__ == "__m5_main__":
     else:
         raise Exception
 
-    board.set_workload(mm_workload)
+    # board.set_workload(mm_workload)
+    board.set_workload(sca_workload)
 
     if args.ignore_roi:
         begin_generator = skip_generator()
