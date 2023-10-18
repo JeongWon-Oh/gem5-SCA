@@ -45,5 +45,8 @@ mm_workload = CustomWorkload(
 
 sca_workload = CustomWorkload(
     function="set_se_binary_workload",
-    parameters={"binary": CustomResource("/home/jeongwon/CacheSC_gem5/demo/hello")},
+    parameters={
+        "binary": CustomResource("../../SCA-PoC/demo/single-eviction"),
+        "arguments": ["1"],
+    },
 )
